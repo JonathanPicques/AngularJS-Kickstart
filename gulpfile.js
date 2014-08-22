@@ -32,11 +32,6 @@ var buildPaths = {
     assetsFolder: 'assets'
 };
 
-gulp.task('clean', function () {
-    return gulp.src(buildPaths.dist)
-        .pipe(clean())
-});
-
 gulp.task('html', function () {
     return gulp.src(sourcePaths.html)
         .pipe(htmlreplace({
@@ -54,7 +49,7 @@ gulp.task('css', function () {
         .pipe(gulp.dest(buildPaths.dist + '/' + buildPaths.cssFolder))
 });
 
-gulp.task('pre-js', function () {
+gulp.task('prejs', function () {
     return gulp.src(sourcePaths.prejs)
         .pipe(concat(buildPaths.prejsFile))
         .pipe(gulpif(doUglify, uglify()))
@@ -67,7 +62,6 @@ gulp.task('js', function () {
         gulp.src(sourcePaths.app)
             .pipe(jshint())
             .pipe(jshint.reporter('default')) // Log errors
-            .pipe(jshint.reporter('fail')) // Fail build
     )
         .done()
         .pipe(concat(buildPaths.jsFile))
@@ -97,8 +91,8 @@ gulp.task('watch', function () {
     gulp.watch(sourcePaths.html, ['html']);
     gulp.watch(sourcePaths.css, ['css']);
     gulp.watch(sourcePaths.prejs, ['prejs']);
-    gulp.watch(sourcePaths.js, ['js']);
+    gulp.watch([sourcePaths.js, sourcePaths.app], ['js']);
     gulp.watch([sourcePaths.assets, sourcePaths.partials], ['assets']);
 });
 
-gulp.task('default', ['html', 'css', 'pre-js', 'js', 'assets', 'webserver', 'watch']);
+gulp.task('default', ['html', 'css', 'prejs', 'js', 'assets', 'watch', 'webserver']);
