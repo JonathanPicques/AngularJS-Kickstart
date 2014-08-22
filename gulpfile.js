@@ -1,5 +1,6 @@
 var gulp = require('gulp');
 var streamqueue = require("streamqueue");
+var gulpif = require('gulp-if');
 var clean = require('gulp-clean');
 var concat = require('gulp-concat');
 var htmlreplace = require('gulp-html-replace');
@@ -7,6 +8,9 @@ var minifyCSS = require('gulp-minify-css');
 var uglify = require('gulp-uglify');
 var jshint = require('gulp-jshint');
 var webserver = require('gulp-webserver');
+
+var doUglify = false;
+var doMinify = false;
 
 var sourcePaths = {
     html: ['index.html'],
@@ -46,14 +50,14 @@ gulp.task('html', function () {
 gulp.task('css', function () {
     return gulp.src(sourcePaths.css)
         .pipe(concat(buildPaths.cssFile))
-        .pipe(minifyCSS())
+        .pipe(gulpif(doMinify, minifyCSS()))
         .pipe(gulp.dest(buildPaths.dist + '/' + buildPaths.cssFolder))
 });
 
 gulp.task('pre-js', function () {
     return gulp.src(sourcePaths.prejs)
         .pipe(concat(buildPaths.prejsFile))
-        .pipe(uglify())
+        .pipe(gulpif(doUglify, uglify()))
         .pipe(gulp.dest(buildPaths.dist + '/' + buildPaths.jsFolder));
 });
 
@@ -67,7 +71,7 @@ gulp.task('js', function () {
     )
         .done()
         .pipe(concat(buildPaths.jsFile))
-        .pipe(uglify())
+        .pipe(gulpif(doUglify, uglify()))
         .pipe(gulp.dest(buildPaths.dist + '/' + buildPaths.jsFolder));
 });
 
