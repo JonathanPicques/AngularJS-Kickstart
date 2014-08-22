@@ -11,7 +11,8 @@ var webserver = require('gulp-webserver');
 var sourcePaths = {
     html: ['index.html'],
     css: ['assets/css/*.css', 'assets/css/**/*.css'],
-    vendor: ['vendor/jquery/*.js', 'vendor/angularjs/angular.js', 'vendor/**/*.js'],
+    prejs: ['vendor/modernizr/modernizr-2.8.3.js'],
+    js: ['vendor/jquery/*.js', 'vendor/angularjs/angular.js', 'vendor/angularjs/*.js', 'vendor/bootstrap/*.js'],
     app: ['app/modules/*.js', 'app/config/*.js', 'app/services/*.js', 'app/**/*.js'],
     partials: ['app/partials/*.html', 'app/partials/**/*.html'],
     assets: ['assets/fonts/*', 'assets/fonts/**/*', 'assets/images/*', 'assets/images/**/*']
@@ -21,6 +22,7 @@ var buildPaths = {
     dist: 'dist',
     jsFolder: 'js',
     jsFile: 'all.min.js',
+    prejsFile: 'pre-all.min.js',
     cssFolder: 'assets/css',
     cssFile: 'all.min.css',
     assetsFolder: 'assets'
@@ -35,7 +37,8 @@ gulp.task('html', function () {
     return gulp.src(sourcePaths.html)
         .pipe(htmlreplace({
             css: buildPaths.cssFolder + '/' + buildPaths.cssFile,
-            js: buildPaths.jsFolder + '/' + buildPaths.jsFile
+            js: buildPaths.jsFolder + '/' + buildPaths.jsFile,
+            prejs: buildPaths.jsFolder + '/' + buildPaths.prejsFile
         }))
         .pipe(gulp.dest(buildPaths.dist))
 });
@@ -47,9 +50,16 @@ gulp.task('css', function () {
         .pipe(gulp.dest(buildPaths.dist + '/' + buildPaths.cssFolder))
 });
 
+gulp.task('pre-js', function () {
+    return gulp.src(sourcePaths.prejs)
+        .pipe(concat(buildPaths.prejsFile))
+        .pipe(uglify())
+        .pipe(gulp.dest(buildPaths.dist + '/' + buildPaths.jsFolder));
+});
+
 gulp.task('js', function () {
     return new streamqueue({ objectMode: true }).queue(
-        gulp.src(sourcePaths.vendor),
+        gulp.src(sourcePaths.js),
         gulp.src(sourcePaths.app)
             .pipe(jshint())
             .pipe(jshint.reporter('default')) // Log errors
@@ -79,4 +89,12 @@ gulp.task('webserver', function () {
         }));
 });
 
-gulp.task('default', ['html', 'css', 'js', 'assets', 'webserver']);
+gulp.task('watch', function () {
+    gulp.watch(sourcePaths.html, ['html']);
+    gulp.watch(sourcePaths.css, ['css']);
+    gulp.watch(sourcePaths.prejs, ['prejs']);
+    gulp.watch(sourcePaths.js, ['js']);
+    gulp.watch([sourcePaths.assets, sourcePaths.partials], ['assets']);
+});
+
+gulp.task('default', ['html', 'css', 'pre-js', 'js', 'assets', 'webserver', 'watch']);

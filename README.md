@@ -14,3 +14,4 @@ Gulp
 Features:
 * Minified all-in-one build
 * Webserver on localhost:8080
+* Watch files modifications and build them directly
