@@ -1,0 +1,9 @@
+# IntelliJ files
+/AngularKickstart.iml
+/.idea
+
+# Build
+/dist
+
+# Node.JS
+/node_modules
